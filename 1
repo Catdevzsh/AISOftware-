@@ -1,0 +1,77 @@
+#!/bin/bash
+
+# Function to update and upgrade the system
+update_system() {
+  echo "Updating system packages..."
+  sudo apt update && sudo apt upgrade -y
+}
+
+# Function to install necessary tools
+install_tools() {
+  echo "Installing performance monitoring tools..."
+  sudo apt install -y htop iotop preload
+}
+
+# Function to clean up the system
+cleanup_system() {
+  echo "Cleaning up the system..."
+  sudo apt autoremove -y
+  sudo apt autoclean
+  sudo apt clean
+}
+
+# Function to clear caches
+clear_caches() {
+  echo "Clearing system caches..."
+  sync
+  echo 3 | sudo tee /proc/sys/vm/drop_caches
+}
+
+# Function to adjust swappiness
+adjust_swappiness() {
+  echo "Adjusting swappiness..."
+  sudo sysctl vm.swappiness=10
+  echo "vm.swappiness=10" | sudo tee -a /etc/sysctl.conf
+}
+
+# Function to optimize VRAM usage
+optimize_vram() {
+  echo "Optimizing VRAM usage..."
+  echo "Adjusting NVIDIA VRAM settings..."
+  sudo nvidia-smi --auto-boost-permission=0
+  sudo nvidia-smi -pm 1
+  sudo nvidia-smi --auto-boost-default=0
+  sudo nvidia-smi --auto-boost-permission=1
+  sudo nvidia-smi --persistence-mode=1
+}
+
+# Function to enable Preload for better performance
+enable_preload() {
+  echo "Enabling Preload for better performance..."
+  sudo systemctl enable preload
+  sudo systemctl start preload
+}
+
+# Function to display system information
+display_info() {
+  echo "Displaying system information..."
+  free -h
+  df -h
+  top -n 1 -b | head -n 20
+}
+
+# Main script execution
+main() {
+  update_system
+  install_tools
+  cleanup_system
+  clear_caches
+  adjust_swappiness
+  optimize_vram
+  enable_preload
+  display_info
+  echo "Optimization complete!"
+}
+
+# Run the main function
+main
